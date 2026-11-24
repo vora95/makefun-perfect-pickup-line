@@ -21,6 +21,12 @@ function main(): void {
   if (ENTRY.trim().length === 0) {
     throw new Error("entry must not be only whitespace");
   }
+  if (ENTRY !== ENTRY.trim()) {
+    throw new Error("entry must not start or end with whitespace");
+  }
+  if (/[\u0000-\u001F\u007F]/.test(ENTRY)) {
+    throw new Error("entry must not contain control characters");
+  }
   if (ENTRY.includes("\n")) {
     throw new Error("entry must be a single line");
   }
@@ -35,6 +41,9 @@ function main(): void {
   }
   if (raw.length !== 102) {
     throw new Error("expected 102 bytes");
+  }
+  if (Buffer.byteLength(ENTRY, "utf-8") !== 102) {
+    throw new Error("expected 102 UTF-8 bytes");
   }
   if (createHash("sha256").update(raw).digest("hex") !== EXPECTED_SHA256) {
     throw new Error("sha256 mismatch");
